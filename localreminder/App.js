@@ -1,112 +1,61 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import React, {Component} from 'react';
+import {Alert} from 'react-native';
+import firebase from 'react-native-firebase';
+import Dashboard from './src/Dashboard';
 
-import React from 'react';
-import type {Node} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+export default class App extends Component {
+  componentDidMount() {
+    // Create notification channel required for Android devices
+    this.createNotificationChannel();
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+    // Ask notification permission and add notification listener
+    this.checkPermission();
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
-
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    //
+  }
+  createNotificationChannel = () => {
+    // Build a android notification channel
+    const channel = new firebase.notifications.Android.Channel(
+      'reminder', // channelId
+      'Reminders Channel', // channel name
+      firebase.notifications.Android.Importance.High, // channel importance
+    ).setDescription('Used for getting reminder notification'); // channel description
+    // Create the android notification channel
+    firebase.notifications().android.createChannel(channel);
   };
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+  checkPermission = async () => {
+    const enabled = await firebase.messaging().hasPermission();
+    if (enabled) {
+      // We've the permission
+      this.notificationListener = firebase
+        .notifications()
+        .onNotification(async notification => {
+          // Display your notification
+          console.log('onNotif', notification);
+          notification.android.setChannelId('reminder'); //create channel ID
+          await firebase.notifications().displayNotification(notification);
+        });
+      this.messageListener = firebase.messaging().onMessage((message) => {
+        // Process your message as required
+        console.log('msg listerner', message);
+      });
+      firebase.notifications().onNotificationDisplayed(notif => {
+        console.log('OnNotifDisplay', notif);
+      });
+    } else {
+      // user doesn't have permission
+      try {
+        await firebase.messaging().requestPermission();
+      } catch (error) {
+        Alert.alert(
+          'Unable to access the Notification permission. Please enable the Notification Permission from the settings',
+        );
+      }
+    }
+  };
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
+  render() {
+    return <Dashboard />;
+  }
+}
