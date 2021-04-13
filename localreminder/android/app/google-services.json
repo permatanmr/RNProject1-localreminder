@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "340854144253",
+    "project_id": "localreminder-70f66",
+    "storage_bucket": "localreminder-70f66.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:340854144253:android:958b593ea1940932549294",
+        "android_client_info": {
+          "package_name": "com.localreminder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "340854144253-3j7r50fhmlq4diiskqeo4pr2cp57mapn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAGS6gkxbyPLkJYxilGNImqOb3KnYZLfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "340854144253-3j7r50fhmlq4diiskqeo4pr2cp57mapn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
